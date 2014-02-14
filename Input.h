@@ -3,5 +3,6 @@ struct Input{
 	float rightX;
 	float leftY;
 	float rightY;
-	bool intake;
+	float controlY;
+	int intake;
 };

@@ -9,9 +9,9 @@
 class RobotDemo : public IterativeRobot
 {
 	RobotDrive myRobot; // robot drive system
-	Joystick left, right; // only joystick
+	Joystick left, right, control; // only joystick
 	Input input;
-	Victor intake1, intake2;
+	Victor intake1, intake2, intakeUpDown;
 	void ProcessInputs();
 	void ApplyOutputs();
 	void RobotThink();
@@ -21,8 +21,10 @@ public:
 		myRobot(2, 3),	// these must be initialized in the same order
 		left(1),		// as they are declared above.
 		right(2),
+		control(3), //order important! change it in setup tab of DS
 		intake1(4),
-		intake2(5)
+		intake2(5),
+		intakeUpDown(6)
 	{
 		myRobot.SetExpiration(0.1);
 		this->SetPeriod(0); 	//Set update period to sync with robot control packets (20ms nominal)
@@ -39,6 +41,7 @@ void RobotDemo::RobotInit() {
 	input.leftY = 0;
 	input.rightX = 0;
 	input.rightY = 0;
+	input.controlY = 0;
 }
 
 /**
@@ -118,10 +121,15 @@ void RobotDemo::TestPeriodic() {
 
 };
 void RobotDemo::ProcessInputs(){
-	input.intake = left.GetRawButton(2);
+	input.controlY = control.GetY();
+	input.intake = 0;
+	if(left.GetRawButton(2))
+		input.intake = left.GetRawButton(2);
+	if(right.GetRawButton(2))
+		input.intake = !right.GetRawButton(2);
 }
 void RobotDemo::RobotThink(){
-	if(input.leftY > left.GetY()){
+	/*if(input.leftY > left.GetY()){
 	    input.leftY -= 0.05;
 	}
 	else if(input.leftY < left.GetY()){
@@ -132,17 +140,26 @@ void RobotDemo::RobotThink(){
 	}
 	else if(input.rightY < right.GetY()){
 		input.rightY += 0.05;
-	}
-}
-void RobotDemo::ApplyOutputs(){
-	if(input.intake){
-		intake1.Set(1);
-		intake2.Set(2);
+	}*/
+	//if(!10percentbutton)
+	if(left.GetY() > -0.7 && left.GetY() < 0.7){
+		input.leftY = -5.0/7.0 * left.GetY();
 	}
 	else{
-		intake1.Set(0);
-		intake2.Set(0);
+		input.leftY = -5.0/3.0 * left.GetY();
 	}
+	if(right.GetY() > -0.7 && right.GetY() < 0.7){
+		input.rightY = -5.0/7.0 * right.GetY();
+	}
+	else{
+		input.rightY = -5.0/3.0 * right.GetY();
+	}
+	input.controlY *= -1;
+}
+void RobotDemo::ApplyOutputs(){
+	intakeUpDown.Set(input.controlY);
+	intake1.Set(input.intake);
+	intake2.Set(-input.intake);
 	myRobot.TankDrive(input.leftY, input.rightY);
 	//printf("%lf\n", input.leftY);
 }
