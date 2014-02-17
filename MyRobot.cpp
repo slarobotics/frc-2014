@@ -75,7 +75,7 @@ void RobotDemo::DisabledPeriodic() {
  * the robot enters autonomous mode.
  */
 void RobotDemo::AutonomousInit() {
-	myRobot.TankDrive(1.0, 1.0);
+	timer.Reset();
 	timer.Start();
 }
 
@@ -85,9 +85,14 @@ void RobotDemo::AutonomousInit() {
  * Use this method for code which will be called periodically at a regular
  * rate while the robot is in autonomous mode.
  */
-void RobotDemo::AutonomousPeriodic() {
-	if(timer.Get() >= 3000)
+void RobotDemo::AutonomousPeriodic(){
+	//printf("%lf\n", timer.Get());
+	if(timer.Get() >= 3.0){
+		timer.Stop();
 		myRobot.TankDrive(0.0, 0.0);
+	}
+	else
+		myRobot.TankDrive(1.0, 1.0);
 }
 
 /**
@@ -132,7 +137,7 @@ void RobotDemo::TestPeriodic() {
 };
 void RobotDemo::ProcessInputs(){
 	input.controlY = control.GetY();
-	input.kick = right.GetTrigger();
+	input.kick = right.GetTrigger() || left.GetTrigger(); //either trigger
 	input.intake = 0;
 	if(left.GetRawButton(2))
 		input.intake = left.GetRawButton(2);
@@ -177,28 +182,34 @@ void RobotDemo::ApplyOutputs(){
 	myRobot.TankDrive(input.leftY, input.rightY);
 	switch(kickPhase){
 	case OFF:
+		//printf("kicker OFF\n");
 		timer.Reset();
 		kicker.Set(0);
 		break;
 	case KICK:
 		timer.Start();
 		kicker.Set(1); // go forward for half a second
-		if(timer.Get() >= 500){
+		//printf("KICKing\n");
+		if(timer.Get() >= 0.5){
+			//printf("Timer at 0.5, transitioning to RETURN\n");
 			timer.Stop();
 			timer.Reset();
 			kickPhase = RETURN;
 		}
 		break;
 	case RETURN:
-		timer.Reset(); // just to be safe
+		//timer.Reset(); // just to be safe
 		timer.Start();
 		kicker.Set(-0.5);
-		if(timer.Get() >= 1000){
+		//printf("RETURNing, timer at %lf\n", timer.Get());
+		if(timer.Get() >= 1.0){
+			//printf("transitioning to OFF\n");
 			timer.Stop();
-			timer.Reset();
+			//timer.Reset();
 			kickPhase = OFF;
 		}
 	}
+	//printf("%i\n", kickPhase);
 	//printf("input.leftY: %lf\n", input.leftY);
 	//printf("input.rightY: %lf\n", input.rightY);
 }
