@@ -5,4 +5,5 @@ struct Input{
 	float rightY;
 	float controlY;
 	int intake;
+	bool kick;
 };

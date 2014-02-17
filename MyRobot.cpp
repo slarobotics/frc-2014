@@ -1,5 +1,6 @@
 #include "WPILib.h"
 #include "Input.h"
+#include "enum.h"
 
 /**
  * This is a demo program showing the use of the RobotBase class.
@@ -11,7 +12,9 @@ class RobotDemo : public IterativeRobot
 	RobotDrive myRobot; // robot drive system
 	Joystick left, right, control; // only joystick
 	Input input;
-	Victor intake1, intake2, intakeUpDown;
+	Victor intake1, intake2, intakeUpDown, kicker;
+	Timer timer;
+	KickerPhase kickPhase;
 	void ProcessInputs();
 	void ApplyOutputs();
 	void RobotThink();
@@ -24,7 +27,9 @@ public:
 		control(3), //order important! change it in setup tab of DS
 		intake1(4),
 		intake2(5),
-		intakeUpDown(6)
+		intakeUpDown(6),
+		kicker(7),
+		timer()
 	{
 		myRobot.SetExpiration(0.1);
 		this->SetPeriod(0); 	//Set update period to sync with robot control packets (20ms nominal)
@@ -42,6 +47,7 @@ void RobotDemo::RobotInit() {
 	input.rightX = 0;
 	input.rightY = 0;
 	input.controlY = 0;
+	kickPhase = OFF;
 }
 
 /**
@@ -69,6 +75,8 @@ void RobotDemo::DisabledPeriodic() {
  * the robot enters autonomous mode.
  */
 void RobotDemo::AutonomousInit() {
+	myRobot.TankDrive(1.0, 1.0);
+	timer.Start();
 }
 
 /**
@@ -78,6 +86,8 @@ void RobotDemo::AutonomousInit() {
  * rate while the robot is in autonomous mode.
  */
 void RobotDemo::AutonomousPeriodic() {
+	if(timer.Get() >= 3000)
+		myRobot.TankDrive(0.0, 0.0);
 }
 
 /**
@@ -122,6 +132,7 @@ void RobotDemo::TestPeriodic() {
 };
 void RobotDemo::ProcessInputs(){
 	input.controlY = control.GetY();
+	input.kick = right.GetTrigger();
 	input.intake = 0;
 	if(left.GetRawButton(2))
 		input.intake = left.GetRawButton(2);
@@ -155,13 +166,41 @@ void RobotDemo::RobotThink(){
 		input.rightY = -5.0/3.0 * right.GetY();
 	}
 	input.controlY *= -1;
+	if(input.kick && kickPhase == OFF){ //only start kicking if not kicking!
+		kickPhase = KICK;
+	}
 }
 void RobotDemo::ApplyOutputs(){
 	intakeUpDown.Set(input.controlY);
 	intake1.Set(input.intake);
 	intake2.Set(-input.intake);
 	myRobot.TankDrive(input.leftY, input.rightY);
-	//printf("%lf\n", input.leftY);
+	switch(kickPhase){
+	case OFF:
+		timer.Reset();
+		kicker.Set(0);
+		break;
+	case KICK:
+		timer.Start();
+		kicker.Set(1); // go forward for half a second
+		if(timer.Get() >= 500){
+			timer.Stop();
+			timer.Reset();
+			kickPhase = RETURN;
+		}
+		break;
+	case RETURN:
+		timer.Reset(); // just to be safe
+		timer.Start();
+		kicker.Set(-0.5);
+		if(timer.Get() >= 1000){
+			timer.Stop();
+			timer.Reset();
+			kickPhase = OFF;
+		}
+	}
+	//printf("input.leftY: %lf\n", input.leftY);
+	//printf("input.rightY: %lf\n", input.rightY);
 }
 
 START_ROBOT_CLASS(RobotDemo);
