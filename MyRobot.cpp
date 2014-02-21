@@ -14,7 +14,7 @@ class RobotDemo : public IterativeRobot
 	Input input;
 	Jaguar leftMC, rightMC;
 	RobotDrive myRobot; // robot drive system
-	Victor intake1, intake2, intakeUpDown, kicker;
+	Victor intakeSpin, intakeUpDown1, intakeUpDown2, kicker;
 	Timer timer, autoTimer;
 	KickerPhase kickPhase;
 	DriveMode driveMode;
@@ -30,9 +30,9 @@ public:
 		leftMC(2),
 		rightMC(3),
 		myRobot(leftMC, rightMC),
-		intake1(4),
-		intake2(5),
-		intakeUpDown(6),
+		intakeSpin(4),
+		intakeUpDown1(5),
+		intakeUpDown2(6),
 		kicker(7),
 		timer(),
 		autoTimer()
@@ -164,12 +164,20 @@ void RobotDemo::ProcessInputs(){
 		input.rightY = right.GetY();
 	}
 	input.controlY = control.GetY();
-	input.kick = right.GetTrigger() || left.GetTrigger(); //either trigger
+	input.kick = right.GetTrigger();
 	input.intake = 0;
-	if(left.GetRawButton(2))
-		input.intake = left.GetRawButton(2);
-	if(right.GetRawButton(2))
-		input.intake = !right.GetRawButton(2);
+	if(left.GetTrigger())
+		input.intake = 1;
+	else if(left.GetRawButton(2))
+		input.intake = -1;
+	else
+		input.intake = 0;
+	if(left.GetRawButton(6))
+		input.intakeSpin = 1;
+	else if(left.GetRawButton(7))
+		input.intakeSpin = -1;
+	else
+		input.intakeSpin = 0;
 }
 void RobotDemo::RobotThink(){
 	/*if(input.leftY > left.GetY()){
@@ -252,9 +260,9 @@ void RobotDemo::RobotThink(){
 	SmartDashboard::PutNumber("right motor power", input.rightY);
 }
 void RobotDemo::ApplyOutputs(){
-	intakeUpDown.Set(input.controlY);
-	intake1.Set(input.intake);
-	intake2.Set(-input.intake);
+	intakeUpDown1.Set(input.intake);
+	intakeUpDown2.Set(-input.intake);
+	intakeSpin.Set(input.intakeSpin);
 	myRobot.TankDrive(input.leftY, input.rightY);
 	switch(kickPhase){
 	case OFF:

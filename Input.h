@@ -5,5 +5,6 @@ struct Input{
 	float rightY;
 	float controlY;
 	int intake;
+	int intakeSpin;
 	bool kick;
 };
