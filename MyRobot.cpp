@@ -212,7 +212,7 @@ void RobotDemo::RobotThink(){
 			input.leftY = 0;
 		if(abs(right.GetY()) <= 0.05)
 			input.rightY = 0;
-		if(left.GetY() <= 0.45 && left.GetY() > 0.05)
+/*		if(left.GetY() <= 0.45 && left.GetY() > 0.05)
 			input.leftY = -((left.GetY() - 0.05) / 4.0);
 		if(right.GetY() <= 0.45 && right.GetY() > 0.05)
 			input.rightY = -((right.GetY() - 0.05) / 4.0);
@@ -237,7 +237,9 @@ void RobotDemo::RobotThink(){
 		if(right.GetY() >= -1.0 && right.GetY() < -0.7)
 			input.rightY = -(13.0/5.0 * right.GetY() + 1.6);
 		//printf("right y: %lf\n", right.GetY());
-		//printf("output right: %lf\n", input.rightY);
+		//printf("output right: %lf\n", input.rightY);*/
+		input.leftY *= -1;
+		input.rightY *= -1;
 		break;
 	case TENPERCENT:
 		SmartDashboard::PutString("Drive Mode", "25 Percent");
