@@ -54,7 +54,7 @@ void RobotDemo::RobotInit() {
 	input.rightY = 0;
 	input.controlY = 0;
 	kickPhase = OFF;
-	driveMode = DEADBAND;
+	driveMode = TENPERCENT;
 	leftMC.EnableDeadbandElimination(true);
 	rightMC.EnableDeadbandElimination(true);
 }
@@ -100,12 +100,12 @@ void RobotDemo::AutonomousPeriodic(){
 	input.kick = true;
 	RobotThink();
 	ApplyOutputs();
-	if(autoTimer.Get() >= 3.0){
+	if(autoTimer.Get() >= 2.0){
 		autoTimer.Stop();
 		myRobot.TankDrive(0.0, 0.0);
 	}
 	else
-		myRobot.TankDrive(1.0, 1.0);
+		myRobot.TankDrive(0.5, 0.5);
 }
 
 /**
@@ -115,7 +115,7 @@ void RobotDemo::AutonomousPeriodic(){
  * the robot enters teleop mode.
  */
 void RobotDemo::TeleopInit() {
-	driveMode = DEADBAND;
+	driveMode = TENPERCENT;
 }
 
 /**
@@ -166,18 +166,18 @@ void RobotDemo::ProcessInputs(){
 	input.controlY = control.GetY();
 	input.kick = right.GetTrigger();
 	input.intake = 0;
-	if(left.GetTrigger())
-		input.intake = 1;
-	else if(left.GetRawButton(2))
-		input.intake = -1;
-	else
-		input.intake = 0;
-	if(left.GetRawButton(6))
+	if(control.GetRawButton(7))
 		input.intakeSpin = 1;
-	else if(left.GetRawButton(7))
+	else if(control.GetRawButton(5))
 		input.intakeSpin = -1;
 	else
 		input.intakeSpin = 0;
+	if(control.GetRawButton(8))
+		input.intake = 1;
+	else if(control.GetRawButton(6))
+		input.intake = -1;
+	else
+		input.intake = 0;
 }
 void RobotDemo::RobotThink(){
 	/*if(input.leftY > left.GetY()){
@@ -196,6 +196,10 @@ void RobotDemo::RobotThink(){
 	switch(driveMode){
 	case DEADBAND:
 		SmartDashboard::PutString("Drive Mode", "Deadband");
+		if(abs(left.GetY()) <= 0.05)
+			input.leftY = 0;
+		if(abs(right.GetY()) <= 0.05)
+			input.rightY = 0;
 		/*if(left.GetY() > -0.7 && left.GetY() < 0.7){
 			input.leftY = -5.0/7.0 * left.GetY();
 		}
@@ -208,45 +212,50 @@ void RobotDemo::RobotThink(){
 		else{
 			input.rightY = -5.0/3.0 * right.GetY();
 		}*/
+		if((left.GetY() <= 0.45 && left.GetY() > 0.05) || (right.GetY() <= 0.45 && right.GetY() > 0.05))
+			input.leftY = -((left.GetY() - 0.05) / 4.0);
+		if(right.GetY() <= 0.45 && right.GetY() > 0.05)
+			input.rightY = -((right.GetY() - 0.05) / 4.0);
+		if((left.GetY() <= 0.7 && left.GetY() > 0.45) || (right.GetY() <= 0.7 && right.GetY() > 0.45))
+			input.leftY = -(5.0/6.0 * left.GetY() - 165.0 / 600.0);
+		if(right.GetY() <= 0.7 && right.GetY() > 0.45)
+			input.rightY = -(5.0/6.0 * right.GetY() - 165.0 / 600.0);
+		
+		if((left.GetY() <= 1.0 && left.GetY() > 0.7) || (right.GetY() <= 1.0 && right.GetY() > 0.7))
+			input.leftY = -(13.0/5.0 * left.GetY() - 1.6);
+		if(right.GetY() <= 1.0 && right.GetY() > 0.7)
+			input.rightY = -(13.0/5.0 * right.GetY() - 1.6);
+		
+		if((left.GetY() >= -0.45 && left.GetY() < -0.05) || (right.GetY() >= -0.45 && right.GetY() < -0.05))
+			input.leftY = -((left.GetY() + 0.05) / 4.0);
+		if(right.GetY() >= -0.45 && right.GetY() < -0.05)
+			input.rightY = -((right.GetY() + 0.05) / 4.0);
+		
+		if((left.GetY() >= -0.7 && left.GetY() < -0.45) || (right.GetY() >= -0.7 && right.GetY() < -0.45))
+			input.leftY = -(5.0/6.0 * left.GetY() + 165 / 600.0);
+		if(right.GetY() >= -0.7 && right.GetY() < -0.45)
+			input.rightY = -(5.0/6.0 * right.GetY() + 165 / 600.0);
+		
+		if((left.GetY() >= -1.0 && left.GetY() < -0.7) || (right.GetY() >= -1.0 && right.GetY() < -0.7))
+			input.leftY = -(13.0/5.0 * left.GetY() + 1.6);
+		if(right.GetY() >= -1.0 && right.GetY() < -0.7)
+			input.rightY = -(13.0/5.0 * right.GetY() + 1.6);
+		
+		//printf("right y: %lf\n", right.GetY());
+		//printf("output right: %lf\n", input.rightY);
+		break;
+	case TENPERCENT:
+		SmartDashboard::PutString("Drive Mode", "Raw + deadband");
+		/*input.leftY *= -1;
+		input.rightY *= -1;
+		input.leftY /= 4;
+		input.rightY /= 4;*/
 		if(abs(left.GetY()) <= 0.05)
 			input.leftY = 0;
 		if(abs(right.GetY()) <= 0.05)
 			input.rightY = 0;
-/*		if(left.GetY() <= 0.45 && left.GetY() > 0.05)
-			input.leftY = -((left.GetY() - 0.05) / 4.0);
-		if(right.GetY() <= 0.45 && right.GetY() > 0.05)
-			input.rightY = -((right.GetY() - 0.05) / 4.0);
-		if(left.GetY() <= 0.7 && left.GetY() > 0.45)
-			input.leftY = -(5.0/6.0 * left.GetY() - 165.0 / 600.0);
-		if(right.GetY() <= 0.7 && right.GetY() > 0.45)
-			input.rightY = -(5.0/6.0 * right.GetY() - 165.0 / 600.0);
-		if(left.GetY() <= 1.0 && left.GetY() > 0.7)
-			input.leftY = -(13.0/5.0 * left.GetY() - 1.6);
-		if(right.GetY() <= 1.0 && right.GetY() > 0.7)
-			input.rightY = -(13.0/5.0 * right.GetY() - 1.6);
-		if(left.GetY() >= -0.45 && left.GetY() < -0.05)
-			input.leftY = -((left.GetY() + 0.05) / 4.0);
-		if(right.GetY() >= -0.45 && right.GetY() < -0.05)
-			input.rightY = -((right.GetY() + 0.05) / 4.0);
-		if(left.GetY() >= -0.7 && left.GetY() < -0.45)
-			input.leftY = -(5.0/6.0 * left.GetY() + 165 / 600.0);
-		if(right.GetY() >= -0.7 && right.GetY() < -0.45)
-			input.rightY = -(5.0/6.0 * right.GetY() + 165 / 600.0);
-		if(left.GetY() >= -1.0 && left.GetY() < -0.7)
-			input.leftY = -(13.0/5.0 * left.GetY() + 1.6);
-		if(right.GetY() >= -1.0 && right.GetY() < -0.7)
-			input.rightY = -(13.0/5.0 * right.GetY() + 1.6);
-		//printf("right y: %lf\n", right.GetY());
-		//printf("output right: %lf\n", input.rightY);*/
 		input.leftY *= -1;
 		input.rightY *= -1;
-		break;
-	case TENPERCENT:
-		SmartDashboard::PutString("Drive Mode", "25 Percent");
-		input.leftY *= -1;
-		input.rightY *= -1;
-		input.leftY /= 4;
-		input.rightY /= 4;
 		break;
 	case NORMAL:
 		SmartDashboard::PutString("Drive Mode", "Raw");

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <wrxml>
     <properties platform="VxWorks" platform_name="vxworks-6.3" root="1" type="DownloadableKernelModuleProject"/>
     <attributes>
@@ -12,7 +12,6 @@
             <stringAttribute key="BLD::Info|GlobalMacro|EXPAND_DBG" value="0"/>
             <stringAttribute key="BLD::Info|GlobalMacro|PROJECT_TYPE" value="DKM"/>
             <listAttribute key="BLD::Info|Incl|PPC32diab">
-                <stringAttribute value="-I$(WIND_BASE)/target/h/WPILib"/>
                 <stringAttribute value="-I$(WIND_BASE)/target/h"/>
                 <stringAttribute value="-I$(WIND_BASE)/target/h/wrn/coreip"/>
             </listAttribute>
@@ -25,12 +24,9 @@
                 <stringAttribute value="-I$(WIND_BASE)/target/h/wrn/coreip"/>
             </listAttribute>
             <listAttribute key="BLD::Info|Incl|PPC603gnu">
-                <stringAttribute value="-I$(WIND_BASE)/target/h"/>
                 <stringAttribute value="-I$(WIND_BASE)/target/h/WPILib"/>
+                <stringAttribute value="-I$(WIND_BASE)/target/h"/>
                 <stringAttribute value="-I$(WIND_BASE)/target/h/wrn/coreip"/>
-            </listAttribute>
-            <listAttribute key="BLD::Info|Libs|PPC32diab">
-                <stringAttribute value="$(WIND_BASE)/target/lib/WPILib.a"/>
             </listAttribute>
             <listAttribute key="BLD::Info|Libs|PPC603gnu">
                 <stringAttribute value="$(WIND_BASE)/target/lib/WPILib.a"/>
@@ -146,7 +142,7 @@
             <stringAttribute key="BLD::Info|Tool|C-Compiler|flags|PPC32diab" value="$(CC_ARCH_SPEC) -W:c:,-Xclib-optim-off -Xansi -Xlocal-data-area-static-only -Xforce-declarations  -Xmake-dependency=0xd"/>
             <stringAttribute key="BLD::Info|Tool|C-Compiler|flags|PPC32gnu" value="$(CC_ARCH_SPEC) -ansi  -Wall  -MD -MP"/>
             <stringAttribute key="BLD::Info|Tool|C-Compiler|flags|PPC603diab" value="$(CC_ARCH_SPEC) -W:c:,-Xclib-optim-off -Xansi -Xlocal-data-area-static-only -Xforce-declarations  -Xmake-dependency=0xd"/>
-            <stringAttribute key="BLD::Info|Tool|C-Compiler|flags|PPC603gnu" value="$(CC_ARCH_SPEC) -ansi  -Wall  -MD -MP -mlongcall"/>
+            <stringAttribute key="BLD::Info|Tool|C-Compiler|flags|PPC603gnu" value="$(CC_ARCH_SPEC) -ansi  -Wall  -MD -MP"/>
             <stringAttribute key="BLD::Info|Tool|C-Compiler|nonDbgFlags|PPC32diab" value="-XO -Xsize-opt"/>
             <stringAttribute key="BLD::Info|Tool|C-Compiler|nonDbgFlags|PPC32gnu" value="-O2 -fstrength-reduce -fno-builtin"/>
             <stringAttribute key="BLD::Info|Tool|C-Compiler|nonDbgFlags|PPC603diab" value="-XO -Xsize-opt"/>
@@ -244,14 +240,14 @@
         </mapAttribute>
     </attributes>
     <buildtargets>
-        <buildtarget buildtool="Linker" name="FRC2014" passed="false" targetname="FRC2014">
+        <buildtarget buildtool="Linker" name="BuiltinDefaultCode" passed="false" targetname="BuiltinDefaultCode">
             <contents>
-                <buildtargetreference name="/FRC2014/FRC2014_partialImage"/>
+                <buildtargetreference name="/BuiltinDefaultCode/BuiltinDefaultCode_partialImage"/>
             </contents>
         </buildtarget>
-        <buildtarget buildtool="Partial Image Linker" name="FRC2014_partialImage" passed="true" targetname="FRC2014_partialImage">
+        <buildtarget buildtool="Partial Image Linker" name="BuiltinDefaultCode_partialImage" passed="true" targetname="BuiltinDefaultCode_partialImage">
             <contents>
-                <folder name="/FRC2014" recursive="true"/>
+                <folder name="/BuiltinDefaultCode" recursive="true"/>
             </contents>
         </buildtarget>
     </buildtargets>
