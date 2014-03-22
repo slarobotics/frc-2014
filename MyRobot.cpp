@@ -2,6 +2,7 @@
 #include "Input.h"
 #include "enum.h"
 #include <cmath>
+#include <iostream>
 
 /**
  * This is a demo program showing the use of the RobotBase class.
@@ -53,6 +54,9 @@ void RobotDemo::RobotInit() {
 	input.rightX = 0;
 	input.rightY = 0;
 	input.controlY = 0;
+	input.intake = 0;
+	input.intakeSpin = 0;
+	input.kick = false;
 	kickPhase = OFF;
 	driveMode = TENPERCENT;
 	leftMC.EnableDeadbandElimination(true);
@@ -65,6 +69,19 @@ void RobotDemo::RobotInit() {
  * Use this method for initialization code which will be called each time
  * the robot enters disabled mode. 
  */
+void RobotDemo::PrintInput ()
+{
+	std::cout << "start of input dump:\n";
+	std::cout << "input.leftX: " << input.leftX << std::endl;
+	std::cout << "input.leftY: " << input.leftY << std::endl;
+	std::cout << "input.rightX: " << input.rightX << std::endl;
+	std::cout << "input.rightY: " << input.rightY << std::endl;
+	std::cout << "input.controlY: " << input.controlY << std::endl;
+	std::cout << "input.intake: " << input.intake << std::endl;
+	std::cout << "input.intakeSpin: " << input.intakeSpin << std::endl;
+	std::cout << "input.kick: " << input.kick << std::endl;
+	std::cout << "\n\n\n\n";
+}
 void RobotDemo::DisabledInit() {
 }
 
@@ -97,13 +114,18 @@ void RobotDemo::AutonomousInit() {
  */
 void RobotDemo::AutonomousPeriodic(){
 	//printf("%lf\n", autoTimer.Get());
-	input.kick = true;
+	//input.kick = true;
 	RobotThink();
 	ApplyOutputs();
-	if(autoTimer.Get() >= 2.0){
-		autoTimer.Stop();
+	if(autoTimer.Get() >= 7.0){
+		//autoTimer.Stop();
 		myRobot.TankDrive(0.0, 0.0);
+		input.intakeSpin = -1;
 	}
+	/*if(autoTimer.Get() == 9.0){
+		autoTimer.Stop();
+		input.intakeSpin = 0;
+	}*/
 	else
 		myRobot.TankDrive(0.5, 0.5);
 }

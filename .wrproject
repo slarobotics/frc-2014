@@ -240,14 +240,14 @@
         </mapAttribute>
     </attributes>
     <buildtargets>
-        <buildtarget buildtool="Linker" name="BuiltinDefaultCode" passed="false" targetname="BuiltinDefaultCode">
+        <buildtarget buildtool="Partial Image Linker" name="frc-2014_partialImage" passed="true" targetname="frc-2014_partialImage">
             <contents>
-                <buildtargetreference name="/BuiltinDefaultCode/BuiltinDefaultCode_partialImage"/>
+                <folder name="/frc-2014" recursive="true"/>
             </contents>
         </buildtarget>
-        <buildtarget buildtool="Partial Image Linker" name="BuiltinDefaultCode_partialImage" passed="true" targetname="BuiltinDefaultCode_partialImage">
+        <buildtarget buildtool="Linker" name="frc-2014" passed="false" targetname="frc-2014">
             <contents>
-                <folder name="/BuiltinDefaultCode" recursive="true"/>
+                <buildtargetreference name="/frc-2014/frc-2014_partialImage"/>
             </contents>
         </buildtarget>
     </buildtargets>
